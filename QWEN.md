@@ -57,8 +57,20 @@ systemctl start qwen-worker
 ```sh
 node scripts/build-worker-tarball.js
 scp models/qwen-worker-deploy.tar.gz root@uneed-production:/tmp/
-ssh root@uneed-production "tar -xzf /tmp/qwen-worker-deploy.tar.gz -C /opt/telegram-qwen-worker && cd /opt/telegram-qwen-worker && npm ci --omit=dev && systemctl restart qwen-worker"
+ssh root@uneed-production "tar -xzf /tmp/qwen-worker-deploy.tar.gz -C /opt/telegram-qwen-worker && cd /opt/telegram-qwen-worker && npm ci && systemctl restart qwen-worker"
 ```
+
+**`npm run deploy` воркер не обновляет.** `tgcloud run` отправляет все локальные
+модули и сервер разрешает импорты только по ним, а не по развёрнутой версии
+(`src/commands/run.js` в CLI). Воркер запускает `endpoints/qwenPump` из своего
+каталога, поэтому считает **своей** копией `tgcloud/lib`. Если её не пересобрать,
+деплой и продолжение работают на разных версиях кода: первая порция ответа
+(обработчик в Telegram) — новая, а дописывание (воркер) — старая. Симптом ровно
+такой: начало ответа нормальное, продолжение рассыпается.
+
+Установка — **`npm ci` без `--omit=dev`**: сам воркер вызывает официальный CLI,
+а `@tgcloud/cli` объявлен в `devDependencies`, и `--omit=dev` удалит его —
+служба начнёт падать с `MODULE_NOT_FOUND`.
 
 Архив содержит только файлы бота — без весов и `node_modules`.
 
