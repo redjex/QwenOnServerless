@@ -169,3 +169,22 @@ alone. Commits made anywhere else are rejected by the server — the cloud machi
 can push branches and open pull requests, but not write to `main`. The script
 refuses to commit when the local signing setup is missing, so the failure is
 explained before anything is sent.
+
+## Working in the cloud sandbox (ML AI Code)
+
+The ML AI Code machine holds a clone of this repository but is not the owner of
+`main`: the signing key lives on the owner's PC. Inside the sandbox:
+
+- Work on a branch (`agent/<short-topic>`) and open a pull request; never push to `main`.
+- `.mlai/policy.yml` lists the commands allowed without asking and those refused.
+- There is no `.tgcloud/` directory and no bot credentials in the sandbox, so
+  `npx tgcloud run|push|migrate` cannot work there — that is deliberate. Do not
+  attempt to log in, and do not reach for the owner's servers (no `ssh`, no `scp`).
+- `models/` is not in the repository (2.5 GB). The code under `tgcloud/` runs in
+  Telegram, not in the sandbox; restore weights per QWEN.md only if asked.
+- After you push, the owner's machine runs `npm run agent:watch`: it scans the
+  changed files for secrets, runs `npm test` and `npm run demo` in a throwaway
+  worktree of your branch, optionally makes a real call in Telegram Serverless,
+  and writes the verdict to `.mlai/verification.json` on your branch and as a
+  pull-request comment. `git pull` and read it before continuing.
+- User-facing text stays in Russian, code comments in English, as elsewhere here.

@@ -23,3 +23,10 @@ models/
 *.log
 .DS_Store
 Thumbs.db
+
+# Состояние наблюдения за облачной машиной (только на этой машине).
+.agent-watch.json
+.agent-watch.log
+
+# Отчёт проверки живёт только в ветках облачной машины и добавляется через git add -f.
+.mlai/verification.json

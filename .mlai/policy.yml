@@ -1,0 +1,32 @@
+# Правила для агента ML AI Code, работающего в облачной машине проекта.
+# Файл лежит в репозитории и меняется как обычный код, поэтому его видно в diff.
+
+production:
+  branch: main
+  require_pr: true            # в main пишет только владелец со своей машины
+  require_ci_green: true
+  min_approvals: 1
+  block_paths_without_review: ["tgcloud/schema.js", ".mlai/**", "AGENTS.md"]
+
+agent:
+  modes_allowed: [plan, brief, guided]
+  commands:
+    allow:
+      - "npm test"
+      - "npm run demo"
+      - "node scripts/watch-agent.js --local-only"
+      - "git fetch*"
+      - "git status*"
+      - "git diff*"
+    deny:
+      - "npx tgcloud push*"      # публикует код в живого бота
+      - "npx tgcloud migrate*"   # меняет базу бота без возврата
+      - "npx tgcloud login*"
+      - "git push*main*"         # main принимает только подписанные коммиты владельца
+      - "git push --force*"
+      - "ssh*"                   # серверы владельца не входят в песочницу
+      - "scp*"
+      - "systemctl*"
+
+secrets:
+  scan: true

@@ -7,6 +7,7 @@
     "test": "node --test",
     "demo": "node demo.js",
     "sync": "node scripts/sync.js",
+    "agent:watch": "node scripts/watch-agent.js",
     "deploy": "tgcloud push tgcloud/schema.js tgcloud/lib tgcloud/handlers",
     "qwen:worker": "node scripts/qwen-worker.js",
     "qwen:bench": "node scripts/bench-qwen.js",

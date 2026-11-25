@@ -17,10 +17,11 @@
 //   node scripts/sync.js --push-only     only send local changes
 //   node scripts/sync.js --dry-run       report what would happen, change nothing
 
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { hostname } from "node:os";
-import { isAbsolute, join, resolve } from "node:path";
+import { isAbsolute, resolve } from "node:path";
+import { scanPaths } from "./lib/secret-scan.js";
 
 const argv = process.argv.slice(2);
 const hasFlag = name => argv.includes(name);
@@ -45,33 +46,9 @@ if (pullOnly && pushOnly) fail("--pull-only и --push-only нельзя испо
 
 // ---------------------------------------------------------------------------
 // Guards: what must never leave this machine.
+// Rules and patterns live in scripts/lib/secret-scan.js and are shared with
+// scripts/watch-agent.js.
 // ---------------------------------------------------------------------------
-
-// First block: an actual credential. Second block: a local file holding one.
-const SECRET_PATTERNS = [
-  ["токен Telegram Serverless CLI", /\bapp\d+:[A-Za-z0-9_-]{20,}/],
-  ["токен Telegram-бота", /\bbot\d+:[A-Za-z0-9_-]{30,}/],
-  ["ключ вида OpenAI", /\bsk-[A-Za-z0-9_-]{20,}/],
-  ["токен GitHub", /\bgh[pousr]_[A-Za-z0-9]{30,}/],
-  ["ключ ML AI Code", /\bmlai_sk_[A-Za-z0-9]{20,}/],
-  ["ключ AWS", /\bAKIA[0-9A-Z]{16}\b/],
-  ["блок приватного ключа", /-----BEGIN[A-Z ]*PRIVATE KEY-----/],
-];
-
-const FORBIDDEN_PATHS = [
-  /(^|\/)\.tgcloud\//,
-  /(^|\/)node_modules\//,
-  /(^|\/)\.env($|\.)/,
-  /(^|\/)credentials$/,
-  /qwen-?staging/i,
-  /\.(pem|key|p12|pfx)$/,
-];
-
-const MAX_SCAN_BYTES = 4 * 1024 * 1024;
-
-function mask(value) {
-  return value.length <= 8 ? "*".repeat(value.length) : `${value.slice(0, 6)}${"*".repeat(value.length - 6)}`;
-}
 
 // ---------------------------------------------------------------------------
 // git plumbing.
@@ -141,34 +118,7 @@ const changed = [];
   }
 }
 
-function scanForSecrets(paths) {
-  const findings = [];
-  for (const path of paths) {
-    const normalized = path.replace(/\\/g, "/");
-    const forbidden = FORBIDDEN_PATHS.find(pattern => pattern.test(normalized));
-    if (forbidden) {
-      findings.push([path, "файл не должен попадать в репозиторий"]);
-      continue;
-    }
-    const absolute = resolve(root, path);
-    if (!existsSync(absolute)) continue;
-    const stats = statSync(absolute);
-    if (!stats.isFile() || stats.size === 0 || stats.size > MAX_SCAN_BYTES) continue;
-    const bytes = readFileSync(absolute);
-    if (bytes.includes(0)) continue; // двоичный файл
-    const text = bytes.toString("utf8");
-    for (const [label, pattern] of SECRET_PATTERNS) {
-      const match = text.match(pattern);
-      if (match) {
-        findings.push([path, `${label}: ${mask(match[0])}`]);
-        break;
-      }
-    }
-  }
-  return findings;
-}
-
-const findings = scanForSecrets(changed);
+const findings = scanPaths(root, changed);
 if (findings.length > 0) {
   fail([
     "Проверка остановлена: в коммит попали бы секреты. Ничего не отправлено.",
