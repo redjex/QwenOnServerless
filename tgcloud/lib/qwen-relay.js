@@ -1,6 +1,7 @@
 import { api, db } from "sdk";
 import { generationStep } from "./qwen-job.js";
 import { deliverAnswer } from "./qwen-delivery.js";
+import { quotedText } from "./qwen-answer.js";
 
 // Bot-to-bot continuation without a VPS: the model bot posts a tick into a private
 // group, a second bot echoes it, and the echo arrives as an update that advances the
@@ -33,12 +34,12 @@ export async function handleGroupMessage(message) {
     await storeGroup(message.chat.id);
     return api.sendMessage({
       chat_id: message.chat.id,
-      text: "Ретранслятор включён. Ответы в личке будут продолжаться через этот чат.",
+      ...quotedText("Ретранслятор включён. Ответы в личке будут продолжаться через этот чат."),
     });
   }
   if (command === "/relay_off") {
     await forgetGroup();
-    return api.sendMessage({ chat_id: message.chat.id, text: "Ретранслятор выключен." });
+    return api.sendMessage({ chat_id: message.chat.id, ...quotedText("Ретранслятор выключен.") });
   }
   // Only another bot's tick drives continuation.
   if (!message.from.is_bot || !text.startsWith(TICK)) return;

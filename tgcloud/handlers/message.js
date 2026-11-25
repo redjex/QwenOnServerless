@@ -1,5 +1,6 @@
 import { api, db } from "sdk";
-import { generationStep, answerMarkup, answerText } from "../lib/qwen-job.js";
+import { generationStep } from "../lib/qwen-job.js";
+import { answerMarkup, answerMessage, answerProgress, quotedText } from "../lib/qwen-answer.js";
 import { deliverAnswer } from "../lib/qwen-delivery.js";
 import { handleGroupMessage, scheduleRelay } from "../lib/qwen-relay.js";
 
@@ -20,7 +21,7 @@ const HELP = [
 export default async function (message) {
   if (message.chat?.type !== "private") return handleGroupMessage(message);
   if (!message.from || typeof message.text !== "string") return;
-  const reply = (text, reply_markup) => api.sendMessage({ chat_id: message.chat.id, text, reply_markup });
+  const reply = text => api.sendMessage({ chat_id: message.chat.id, ...quotedText(text) });
   const match = message.text.match(/^(\/\w+)(?:@\w+)?(?:\s+([\s\S]*))?$/);
   const command = match?.[1].toLowerCase();
   const argument = match?.[2] ?? "";
@@ -40,7 +41,9 @@ export default async function (message) {
   if (command === "/last") {
     const row = await db.get("SELECT state FROM qwen_generations WHERE id = :id", { ":id": owner });
     const state = row && JSON.parse(row.state);
-    return state?.requestId ? reply(answerText(state), answerMarkup(state)) : reply("Сначала задай вопрос.");
+    return state?.requestId ? api.sendMessage({
+      chat_id: message.chat.id, ...answerMessage(state), reply_markup: answerMarkup(state),
+    }) : reply("Сначала задай вопрос.");
   }
   if (command === "/train" || command === "/step")
     return reply("Сейчас работает готовая Qwen3-0.6B. Обучение по примерам ещё не подключено. Просто напиши вопрос.");
@@ -48,11 +51,17 @@ export default async function (message) {
   const prompt = command ? argument : message.text;
   if (!prompt.trim() || prompt.length > 500)
     return reply("Отправь короткий вопрос, от 1 до 500 символов.");
-  const pending = await reply("Генерирую первую часть ответа…");
+  let progress = 0;
+  const pending = await api.sendMessage({
+    chat_id: message.chat.id, ...quotedText("Генерирую первую часть ответа…", progress),
+  });
   try {
     const state = await generationStep(owner, {
       prompt, requestId: message.message_id, displayMessageId: pending.message_id,
-      automatic: true, publish: value => deliverAnswer(message.chat.id, value),
+      automatic: true, publish: async value => {
+        await deliverAnswer(message.chat.id, value);
+        progress = answerProgress(value);
+      },
     });
     // With a relay bot configured, continuation runs over Telegram without a VPS.
     await scheduleRelay(owner, state);
@@ -61,7 +70,7 @@ export default async function (message) {
     const detail = /[А-Яа-яЁё]/.test(error.message) ? error.message : "Попробуй /last или короткий вопрос.";
     return api.editMessageText({
       chat_id: message.chat.id, message_id: pending.message_id,
-      text: `Не получилось завершить порцию. ${detail}`,
+      ...quotedText(`Не получилось завершить порцию. ${detail}`, progress),
     });
   }
 }

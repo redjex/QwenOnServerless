@@ -1,6 +1,7 @@
 import { api } from "sdk";
 import { generationStep } from "../lib/qwen-job.js";
 import { deliverAnswer } from "../lib/qwen-delivery.js";
+import { quotedText } from "../lib/qwen-answer.js";
 
 export default async function (query) {
   if (!query.data?.startsWith("qwen_next:")) return;
@@ -18,6 +19,6 @@ export default async function (query) {
     if (error.description?.includes("message is not modified")) return;
     console.error(error);
     const detail = /[А-Яа-яЁё]/.test(error.message) ? error.message : "Не удалось продолжить. Попробуй /last.";
-    await api.sendMessage({ chat_id: message.chat.id, text: detail });
+    await api.sendMessage({ chat_id: message.chat.id, ...quotedText(detail, 0) });
   }
 }

@@ -4,6 +4,8 @@ import { runtime } from "./qwen-runtime.js";
 import { createQwen, pickToken } from "./qwen-model.js";
 import { createTokenizer } from "./qwen-tokenizer.js";
 import { saveKv, restoreKv, removeKv } from "./qwen-checkpoint.js";
+import { MAX_OUTPUT } from "./qwen-answer.js";
+export { answerText, answerMarkup } from "./qwen-answer.js";
 
 // Budget is measured in "token equivalents" of continuous compute. The platform
 // allows roughly 34 per invocation (with run-to-run variance); a prefill token is
@@ -11,7 +13,6 @@ import { saveKv, restoreKv, removeKv } from "./qwen-checkpoint.js";
 // context is pre-filled across several invocations, driven by the VPS worker.
 const EQUIVALENTS = 34;
 const PREFILL_COST = 0.78;
-const MAX_OUTPUT = 192;    // answers may run to ~3x the old 64-token cap
 const CAPACITY = 384;      // KV positions: input (<=160) + output (<=192) + headroom
 const INPUT_CAP = 160;
 const PUBLISH_EVERY = 6;
@@ -205,14 +206,4 @@ export async function generationStep(owner, { prompt, requestId, displayMessageI
     await db.run("UPDATE qwen_generations SET busy_until = 0 WHERE id = :id AND revision = :revision",
       { ":id": owner, ":revision": revision });
   }
-}
-
-// Continuation is driven by the VPS worker; there is no manual button.
-export function answerMarkup() {
-  return { inline_keyboard: [] };
-}
-
-export function answerText(state) {
-  const text = state.text || (state.finished ? "Модель завершила ответ без текста." : "Думаю над ответом...");
-  return state.lengthLimit ? `${text}\n\nДостигнут предел длины ответа (${MAX_OUTPUT} токенов).` : text;
 }
