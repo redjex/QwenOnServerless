@@ -36,6 +36,23 @@ async function saveHistory(owner, messages) {
     { ":id": owner, ":m": JSON.stringify(list) });
 }
 
+const RUN = /([^\s])\1{3,}/gu;
+// Characters that legitimately repeat in Markdown/code dividers and lists.
+const DIVIDER = new Set(["-", "=", "*", "_", "#", "~", "|"]);
+// A degenerate answer must not become conversation context: the model happily
+// continues its own garbage (a bad answer was replayed verbatim by the next
+// reply). Cheap, conservative signatures only: bad decode, a run of one
+// character, or several tokens that glue two scripts together.
+export function looksDegenerate(text) {
+  if (typeof text !== "string" || !text) return false;
+  if (text.includes("\uFFFD")) return true;
+  for (const match of text.matchAll(RUN)) if (!DIVIDER.has(match[1])) return true;
+  let mixed = 0;
+  for (const token of text.split(/\s+/))
+    if (/[A-Za-z]/.test(token) && /[\u0400-\u04FF]/.test(token) && ++mixed >= 3) return true;
+  return false;
+}
+
 // Keep the newest turns that still fit the input cap, always starting with a user turn.
 function fitTranscript(messages, tokenizer, cap) {
   let list = messages.slice();
@@ -159,7 +176,10 @@ export async function generationStep(owner, { prompt, requestId, displayMessageI
     state.bytesRead = engine.store.bytesRead;
     state.updatedAt = Date.now();
     if (state.finished && !state.historySaved && state.messages) {
-      await saveHistory(owner, [...state.messages, { role: "assistant", text: state.text }]);
+      const turns = [...state.messages];
+      if (looksDegenerate(state.text)) console.warn("Degenerate answer kept out of history");
+      else turns.push({ role: "assistant", text: state.text });
+      await saveHistory(owner, turns);
       state.historySaved = true;
     }
     const snapshot = `${owner}/${revision}`;
