@@ -165,12 +165,22 @@ export async function createQwen(engine, { capacity = MAX_CONTEXT, trace = () =>
 }
 
 export function pickToken(logits, generated = []) {
-  // Deterministic greedy decoding (kept for reference checks and diagnostics).
+  // Deterministic decoding: a retry after a killed invocation regenerates the same
+  // text, so streaming and checkpoints stay consistent. The int4 weights add noise,
+  // and greedy pick-off amplifies it into loops, so a standard repetition penalty
+  // plus 3-gram blocking keep the answer from degenerating.
+  const seen = new Set(generated);
+  const banned = new Set();
+  if (generated.length >= 2) {
+    const a = generated[generated.length - 2], b = generated[generated.length - 1];
+    for (let i = 0; i <= generated.length - 3; i++)
+      if (generated[i] === a && generated[i + 1] === b) banned.add(generated[i + 2]);
+  }
   let best = -Infinity, chosen = 0;
-  const repeated = new Set(generated.slice(-32));
   for (let i = 0; i < logits.length; i++) {
     let score = logits[i];
-    if (repeated.has(i)) score = score > 0 ? score / 1.08 : score * 1.08;
+    if (banned.has(i)) score = -Infinity;
+    else if (seen.has(i)) score = score > 0 ? score / 1.15 : score * 1.15;
     if (score > best) { best = score; chosen = i; }
   }
   return chosen;
