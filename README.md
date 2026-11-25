@@ -1,10 +1,6 @@
 # Qwen3-0.6B в Telegram Serverless
 
-<<<<<<< Updated upstream
-**Текущий бот:** https://t.me/tested123123vsgfsg_bot
-=======
 **Текущий бот:** [@tested123123vsgfsg_bot](https://t.me/tested123123vsgfsg_bot)
->>>>>>> Stashed changes
 
 Отправь `/start`, затем вопрос. Первая часть появляется через
 4–5 секунд, затем ответ автоматически дописывается в том же сообщении.
