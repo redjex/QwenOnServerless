@@ -166,21 +166,19 @@ export async function createQwen(engine, { capacity = MAX_CONTEXT, trace = () =>
 
 export function pickToken(logits, generated = []) {
   // Deterministic decoding: a retry after a killed invocation regenerates the same
-  // text, so streaming and checkpoints stay consistent. The int4 weights add noise,
-  // and greedy pick-off amplifies it into loops, so a standard repetition penalty
-  // plus 3-gram blocking keep the answer from degenerating.
-  const seen = new Set(generated);
-  const banned = new Set();
-  if (generated.length >= 2) {
-    const a = generated[generated.length - 2], b = generated[generated.length - 1];
-    for (let i = 0; i <= generated.length - 3; i++)
-      if (generated[i] === a && generated[i + 1] === b) banned.add(generated[i + 2]);
-  }
+  // text, so streaming and checkpoints stay consistent. The loop breaker is a mild
+  // repetition penalty over the last 32 tokens, as in the reference sampler.
+  //
+  // Measured on the deployed (pruned int4) model: a stronger penalty over *all*
+  // generated tokens (1.15, plus 3-gram blocking) pushed the model onto odd synonyms
+  // ("присутствие", "обладать") and out-of-language junk, and that junk then fed
+  // back through the chat history and snowballed. 1.08 over a bounded window keeps
+  // the answer on the reference track and still breaks greedy loops.
+  const repeated = new Set(generated.slice(-32));
   let best = -Infinity, chosen = 0;
   for (let i = 0; i < logits.length; i++) {
     let score = logits[i];
-    if (banned.has(i)) score = -Infinity;
-    else if (seen.has(i)) score = score > 0 ? score / 1.15 : score * 1.15;
+    if (repeated.has(i)) score = score > 0 ? score / 1.08 : score * 1.08;
     if (score > best) { best = score; chosen = i; }
   }
   return chosen;
