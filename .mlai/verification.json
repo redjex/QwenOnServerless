@@ -1,21 +1,21 @@
 {
   "schema": 1,
   "ref": "agent/smoke-ok",
-  "sha": "e02563d89073828a1816c1f907483f34e5c57b01",
-  "short_sha": "e02563d8",
-  "checked_at": "2026-11-25T07:38:13.650Z",
-  "duration_ms": 2366,
-  "verdict": "pass",
+  "sha": "3dedcd37d63ee58e191adc8158a71e8ecb78e175",
+  "short_sha": "3dedcd37",
+  "checked_at": "2026-11-25T07:38:58.964Z",
+  "duration_ms": 8432,
+  "verdict": "fail",
   "checks": [
     {
       "name": "secret-scan",
       "ok": true,
-      "detail": "проверено файлов: 1"
+      "detail": "проверено файлов: 3"
     },
     {
       "name": "npm-test",
       "ok": true,
-      "detail": "> telegram-tiny-text@0.1.0 test\n> node --test\n\n✔ backpropagation matches finite differences, including repeated characters (8.0725ms)\n✔ learns a repeated corpus and resumes exactly from its checkpoint (248.2957ms)\n✔ rejects corrupt checkpoints and tests both memory allocation paths (2.766ms)\nℹ tests 3\nℹ suites 0\nℹ pass 3\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 369.056"
+      "detail": "> telegram-tiny-text@0.1.0 test\n> node --test\n\n✔ backpropagation matches finite differences, including repeated characters (8.7356ms)\n✔ learns a repeated corpus and resumes exactly from its checkpoint (225.2145ms)\n✔ rejects corrupt checkpoints and tests both memory allocation paths (2.5807ms)\nℹ tests 3\nℹ suites 0\nℹ pass 3\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 332.0244"
     },
     {
       "name": "demo",
@@ -27,6 +27,11 @@
         "lastTrainingLoss": 0.002160240876252485,
         "sampleBytes": 124
       }
+    },
+    {
+      "name": "telegram-serverless",
+      "ok": false,
+      "detail": "init: сбой\n> runtimeCheck({action:'init'})\n< {botUsername:'tested123123vsgfsg_bot',steps:0,progress:null,memory:{vocabulary:85,context:8,embedding:16,hidden:64,parameters:15141,weightsBytes:60564,trainingArraysBytes:123004,note:'Only numerical buffers; excludes JS runtime, corpus, SDK, JSON and DB copies.'},checkpointCharacters:308511,sample:'кот спит\\nlsчрй!6я,пwж!\\'yjwфd(\"/jт«wщbпa?кмлюb9vшv.axп\\nцеш-pфwхяhd.m!zoъxо98swоtб!ьюgz4k('}  55ms\n- Running...\n\ntrain: сбой\n> runtimeCheck({action:'train'})\n< {botUsername:'tested123123vsgfsg_bot',steps:128,progress:{completed:128,meanLoss:3.1894687112779,elapsedMs:0},memory:{vocabulary:85,context:8,embedding:16,hidden:64,parameters:15141,weightsBytes:60564,trainingArraysBytes:123004,note:'Only numerical buffers; excludes JS runtime, corpus, SDK, JSON and DB copies.'},checkpointCharacters:311252,sample:\"кот спит\\n кот 1стыeиош'еkгс ?«'eп(гт о 2потс цот ю от\\nсот6 оотё cтpяегт нъцеkогx8тт дсв.\"}  66ms\n- Running...\n\nread: сбой\n> runtimeCheck({action:'read'})\n< {botUsername:'tested123123vsgfsg_bot',steps:128,progress:null,memory:{vocabulary:85,context:8,embedding:16,hidden:64,parameters:15141,weightsBytes:60564,trainingArraysBytes:123004,note:'Only numerical buffers; excludes JS runtime, corpus, SDK, JSON and DB copies.'},checkpointCharacters:311252,sample:\"кот спит\\n кот 1стыeиош'еkгс ?«'eп(гт о 2потс цот ю от\\nсот6 оотё cтpяегт нъцеkогx8тт дсв.\"}  46ms\n- Running..."
     }
   ],
   "notes": [
