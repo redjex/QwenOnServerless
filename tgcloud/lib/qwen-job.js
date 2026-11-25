@@ -11,7 +11,8 @@ import { saveKv, restoreKv, removeKv } from "./qwen-checkpoint.js";
 // context is pre-filled across several invocations, driven by the VPS worker.
 const EQUIVALENTS = 34;
 const PREFILL_COST = 0.78;
-const MAX_OUTPUT = 64;
+const MAX_OUTPUT = 192;    // answers may run to ~3x the old 64-token cap
+const CAPACITY = 384;      // KV positions: input (<=160) + output (<=192) + headroom
 const INPUT_CAP = 160;
 const PUBLISH_EVERY = 6;
 const HISTORY_MESSAGES = 8;
@@ -118,7 +119,7 @@ export async function generationStep(owner, { prompt, requestId, displayMessageI
       }
     }
     const engine = await runtime();
-    const model = await createQwen(engine, { capacity: 256 });
+    const model = await createQwen(engine, { capacity: CAPACITY });
     if (state.checkpoint) await restoreKv(state.checkpoint, model);
 
     const equivLimit = budgetOverride ? Infinity : EQUIVALENTS;
@@ -213,5 +214,5 @@ export function answerMarkup() {
 
 export function answerText(state) {
   const text = state.text || (state.finished ? "Модель завершила ответ без текста." : "Думаю над ответом...");
-  return state.lengthLimit ? `${text}\n\nДостигнут предел длины ответа (64 токена).` : text;
+  return state.lengthLimit ? `${text}\n\nДостигнут предел длины ответа (${MAX_OUTPUT} токенов).` : text;
 }

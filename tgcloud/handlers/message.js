@@ -14,7 +14,7 @@ const HELP = [
   "/stop — остановить текущий ответ",
   "/reset — очистить контекст диалога",
   "",
-  "Ответ выдаётся порциями, до 64 токенов.",
+  "Ответ выдаётся порциями, до 192 токенов.",
 ].join("\n");
 
 export default async function (message) {
@@ -27,7 +27,7 @@ export default async function (message) {
   const owner = `user:${message.from.id}`;
   if (command === "/start" || command === "/help") return reply(HELP);
   if (command === "/stats")
-    return reply("Модель: Qwen3-0.6B (словарь и embeddings урезаны)\nВеса: 325,4 МиБ\nВход: до 160 токенов с шаблоном и историей\nОтвет: до 64 токенов, порциями\nКонтекст: до 256 позиций. Бот помнит последние сообщения; /reset очищает контекст.");
+    return reply("Модель: Qwen3-0.6B (словарь и embeddings урезаны)\nВеса: 325,4 МиБ\nВход: до 160 токенов с шаблоном и историей\nОтвет: до 192 токенов, порциями\nКонтекст: до 384 позиций. Бот помнит последние сообщения; /reset очищает контекст.");
   if (command === "/stop") {
     await db.run("UPDATE qwen_generations SET auto_enabled = 0 WHERE id = :id", { ":id": owner });
     return reply("Текущий ответ остановлен. Уже начатая порция может ещё появиться.");
