@@ -1,0 +1,25 @@
+# Секреты: токен Telegram Serverless CLI и состояние подключения к боту.
+.tgcloud/
+.env
+.env.*
+*.pem
+*.key
+
+# Служебные стейджинговые модули, не предназначенные для публикации.
+tgcloud/lib/qwen-staging.js
+tgcloud/endpoints/qwenStaging*.js
+
+# Зависимости: восстанавливаются через npm ci.
+node_modules/
+
+# Веса и артефакты модели: 2.5 ГБ, в Git не помещаются.
+# На чистой машине восстанавливаются командами из QWEN.md
+# (python scripts/download-qwen.py -> prepare-qwen.py -> node scripts/build-kernel.js).
+models/
+*.safetensors
+*.tar.gz
+
+# Локальный мусор.
+*.log
+.DS_Store
+Thumbs.db

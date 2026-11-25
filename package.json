@@ -1,0 +1,20 @@
+{
+  "name": "telegram-tiny-text",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "demo": "node demo.js",
+    "sync": "node scripts/sync.js",
+    "deploy": "tgcloud push tgcloud/schema.js tgcloud/lib tgcloud/handlers",
+    "qwen:worker": "node scripts/qwen-worker.js",
+    "qwen:bench": "node scripts/bench-qwen.js",
+    "qwen:validate": "node scripts/validate-qwen.js",
+    "qwen:prune": "node scripts/prune-qwen.js safe",
+    "worker:tarball": "node scripts/build-worker-tarball.js"
+  },
+  "devDependencies": {
+    "@tgcloud/cli": "^0.2.0"
+  }
+}

@@ -1,0 +1,26 @@
+[Unit]
+Description=Automatic continuation for Telegram Qwen bot
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=qwen-worker
+Group=qwen-worker
+WorkingDirectory=/opt/telegram-qwen-worker
+EnvironmentFile=/etc/qwen-worker.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node /opt/telegram-qwen-worker/scripts/qwen-worker.js
+Restart=always
+RestartSec=15
+TimeoutStopSec=30
+KillMode=control-group
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/telegram-qwen-worker/.tgcloud /opt/telegram-qwen-worker/models /var/lib/qwen-worker
+
+[Install]
+WantedBy=multi-user.target

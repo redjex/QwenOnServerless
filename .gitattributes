@@ -1,0 +1,15 @@
+# Репозиторий общий для Windows (локально) и Linux (облачная машина ML AI Code).
+# Текст храним с LF, двоичные артефакты не трогаем.
+* text=auto
+
+*.bin binary
+*.wasm binary
+*.safetensors binary
+*.tar.gz binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

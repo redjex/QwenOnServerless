@@ -1,0 +1,12 @@
+{
+  "name": "qwen-relay-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "tgcloud push tgcloud/schema.js tgcloud/lib tgcloud/handlers"
+  },
+  "devDependencies": {
+    "@tgcloud/cli": "^0.2.0"
+  }
+}
