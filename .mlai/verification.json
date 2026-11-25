@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "ref": "agent/smoke-ok",
+  "sha": "e02563d89073828a1816c1f907483f34e5c57b01",
+  "short_sha": "e02563d8",
+  "checked_at": "2026-11-25T07:38:13.650Z",
+  "duration_ms": 2366,
+  "verdict": "pass",
+  "checks": [
+    {
+      "name": "secret-scan",
+      "ok": true,
+      "detail": "проверено файлов: 1"
+    },
+    {
+      "name": "npm-test",
+      "ok": true,
+      "detail": "> telegram-tiny-text@0.1.0 test\n> node --test\n\n✔ backpropagation matches finite differences, including repeated characters (8.0725ms)\n✔ learns a repeated corpus and resumes exactly from its checkpoint (248.2957ms)\n✔ rejects corrupt checkpoints and tests both memory allocation paths (2.766ms)\nℹ tests 3\nℹ suites 0\nℹ pass 3\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 369.056"
+    },
+    {
+      "name": "demo",
+      "ok": true,
+      "detail": "> telegram-tiny-text@0.1.0 demo\n> node demo.js\n\n{\n  \"vocabulary\": 85,\n  \"context\": 8,\n  \"embedding\": 16,\n  \"hidden\": 64,\n  \"parameters\": 15141,\n  \"weightsBytes\": 60564,\n  \"trainingArraysBytes\": 123004,\n  \"note\": \"Only numerical buffers; excludes JS runtime, corpus, SDK, JSON and DB copies.\",\n  \"steps\": 5120,\n  \"firstTrainingLoss\": 2.977139220441397,\n  \"lastTrainingLoss\": 0.002160240876252485,\n  \"checkpointUtf8Bytes\": 310936,\n  \"sample\": \"кот  от. кот спит. кот ест. кот спит. кот ест. кот спит. кот ест. кот спит. кот ест. кот спит. кот ест. кот спит. кот ест. к\"\n}",
+      "metrics": {
+        "steps": 5120,
+        "firstTrainingLoss": 2.977139220441397,
+        "lastTrainingLoss": 0.002160240876252485,
+        "sampleBytes": 124
+      }
+    }
+  ],
+  "notes": [
+    "Проверки secret-scan, npm-test и demo выполнены во временной копии именно этой ветки.",
+    "Проверка telegram-serverless выполнена в развёрнутой версии кода в Telegram Serverless, а не в этой ветке: ветка в живого бота не публиковалась.",
+    "Вердикт формируется на машине владельца; в main попадает только подписанный код с неё."
+  ]
+}
