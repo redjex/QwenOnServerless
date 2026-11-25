@@ -1,6 +1,10 @@
 # Qwen3-0.6B в Telegram Serverless
 
+<<<<<<< Updated upstream
 **Текущий бот:** https://t.me/tested123123vsgfsg_bot
+=======
+**Текущий бот:** [@tested123123vsgfsg_bot](https://t.me/tested123123vsgfsg_bot)
+>>>>>>> Stashed changes
 
 Отправь `/start`, затем вопрос. Первая часть появляется через
 4–5 секунд, затем ответ автоматически дописывается в том же сообщении.
@@ -28,8 +32,9 @@ Telegram, вычисления идут в Serverless.
 Прогресс загрузки: `python scripts/upload-progress.py`.
 
 Это публичная копия проекта: адрес сервера заменён на SSH-алиас
-`uneed-production` (он же используется в командах развёртывания), хэндл бота —
-на `your_bot_username`. Локально подставляйте свои значения.
+`uneed-production` (он же используется в командах развёртывания). Бот —
+[@tested123123vsgfsg_bot](https://t.me/tested123123vsgfsg_bot). Локально
+подставляйте свои значения.
 
 ## Синхронизация с облачной машиной
 

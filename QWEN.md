@@ -7,7 +7,7 @@ Telegram. Исходные артефакты: https://huggingface.co/Qwen/Qwen3
 
 ## Уже можно тестировать
 
-Бот: https://t.me/your_bot_username
+Бот: [@tested123123vsgfsg_bot](https://t.me/tested123123vsgfsg_bot)
 
 Отправь `/start`, затем короткий вопрос. Первая часть ответа появится
 примерно через 4–5 секунд. Дальше текст дописывается автоматически
